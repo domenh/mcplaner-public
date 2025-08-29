@@ -1,0 +1,58 @@
+JEZIK & STIL
+- Odgovarjaj v slovenščini, neposredno in jedrnato.
+- Struktura: 1) TL;DR, 2) Koraki, 3) Koda/izhod.
+- Brez dodatnih vprašanj; jasno navedi predpostavke.
+- Vse izvedi v enem odgovoru; vire dodaj pri nestabilnih temah.
+
+PROJEKTNI OKVIR
+- React + Vite + Tailwind (SPA).
+- Lokalni projekt: C:\McPlaner (BREZ fallbacka).
+- Prod (opcijsko): VPS 62.171.188.117 – webroot /opt/mcplaner/dist, ACME /var/www/letsencrypt.
+- Tema/UI baseline: navy/cream/amber; “Week/Schedule” identičen (2 polji IN/OUT + B/D/X).
+
+AIO PRAVILO
+- Ena PowerShell AIO (UTF-8 LF) → zapiše cele datoteke (ABS poti) → `npm ci` + `npm run build`.
+- (Po potrebi) Deploy: ZIP/TAR dist → SCP /opt/mcplaner → atomarno razpakiraj → `nginx -s reload` → `curl -f` 200 OK.
+- Lepo logiranje; fail-fast.
+
+ROUTER & SIDEBAR
+- Strani: /, /login, /dashboard, /week, /schedule, /floorplan, /employees, /hierarchy,
+  /wishes/self, /wishes/team, /chat, /announcements, /reports, /settings, /ai
+- Redirecti ob preimenovanjih; Nginx SPA fallback: try_files $uri /index.html;.
+
+AVTENTIKACIJA & VLOGE
+- /login javna; ostalo guardano (persist).
+- Vloge: Admin, Manager, Assistant, Crew, Trainer.
+- Pravice: Manager/Assistant = write; Crew/Trainer = read-only (razen /wishes/self).
+
+PODATKOVNI STANDARD
+- En vir resnice = globalni store + persist (localStorage).
+- Key: mcplaner@state + SCHEMA_VERSION (int); migracije v0→v1→… (nikoli prazen UI).
+- Iz komponent se ne piše v localStorage; uporabljaj Write API akcije.
+- Stabilni ID-ji (nanoid/uuid); nikoli array index kot React key.
+
+ENTITETE
+- Employee { id, name, groupId }
+- Group { id, name, order }
+- Assignment { id, date, employeeId, stationId, in?, out?, flag? } // flag: 'B'|'D'|'X'|undefined
+- Selektorji: employeesByGroup(), assignmentsFor(date), assignmentsForStation(date, stationId).
+
+WRITE API (min)
+- upsertEmployee, removeEmployee, upsertGroup, reorderGroups, upsertAssignment (transakcijsko),
+  setStationPosition, setWish, approveWish, setSetting. Po uspehu vedno persist.
+
+POVEZAVE STRANI
+- Settings/Employees → takoj vidno v Schedule/Week (store/selektorji).
+- Schedule/Week: 2 polji IN/OUT ali B/D/X; Save = paketni upsertAssignment; po refreshu ostane.
+- Floorplan: bere dodelitve; B/D/X blokira prikaz; UI stabilen.
+
+UI HIGIENA
+- Tailwind-only: @tailwind base; @tailwind components; @tailwind utilities (pravilen vrstni red).
+- Brez globalnih resetov ali :global; “Week/Schedule” baseline zaklenjen.
+
+KONTROLA KAKOVOSTI
+- Prebuild guardi: ui-freeze-check.cjs, guard-no-direct-localstorage.cjs → OK ali fail.
+- Smoke: dodaj zaposlenega → viden v Schedule → IN/OUT → Save → Refresh → ostane; brez Console errorjev.
+
+TRIGGERJI
+- "AIO" (build), "deploy" (VPS), "snapshot" (ZIP backup C:\McPlaner\__snapshots), "LOCK UI", "MIGRATE".

@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.card        { @apply bg-white rounded-2xl shadow px-4 sm:px-6 py-4; }
+.btn         { @apply inline-flex items-center justify-center rounded-xl font-semibold transition; }
+.btn-amber   { background-color: var(--amber); color:white; }
+.btn-amber:hover { filter:brightness(.95); }
+.badge       { @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium; }
+
+/* === LOGIN UTILITIES (pixel-perfect) === */
+.h1-brand    { @apply text-5xl md:text-6xl font-extrabold tracking-tight text-[color:var(--navy)]; }
+.h2-brand    { @apply text-3xl md:text-4xl font-extrabold text-[color:var(--navy)]; }
+.subtle      { @apply text-slate-600; }
+
+.underline-amber{ position:relative; display:inline-block; }
+.underline-amber::after{
+  content:""; position:absolute; left:0; right:0; bottom:-10px; height:8px;
+  background:var(--amber); border-radius:9999px;
+}
+
+/* Inputs */
+.input-wrap  { @apply relative; }
+.input-lg    { @apply w-full rounded-2xl border border-slate-300 bg-white h-14 pl-12 pr-12 text-lg outline-none; }
+.input-lg:focus{ @apply ring-2 ring-[color:var(--amber)] border-[color:var(--amber)]; }
+.input-icon  { @apply absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400; }
+.input-eye   { @apply absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 cursor-pointer select-none; }
+
+/* Button (navy) */
+.btn         { @apply inline-flex items-center justify-center rounded-2xl font-semibold shadow-sm transition; }
+.btn-navy    { background-color:#143a6f; color:#fff; }
+.btn-navy:hover{ background-color:#0f2f5a; }
+.btn-xl      { @apply h-14 text-xl w-full; }
+
+/* Alerts */
+.alert       { @apply rounded-2xl border px-4 py-3 text-base; }
+.alert-error { @apply bg-red-50 border-red-200 text-red-800; }
+
+/* Links */
+.link-amber  { color:var(--amber); }
+.link-amber:hover{ text-decoration:underline; }

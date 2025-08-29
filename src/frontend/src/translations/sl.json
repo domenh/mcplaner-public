@@ -1,0 +1,30 @@
+﻿{
+  "app": {
+    "title": "McPlaner",
+    "logout": "Odjava"
+  },
+  "nav": {
+    "dashboard": "Nadzorna plošča",
+    "schedule": "Urnik",
+    "wishesSelf": "Moje želje",
+    "wishesTeam": "Želje ekipe",
+    "employees": "Zaposleni",
+    "hierarchy": "Hierarhija",
+    "floorplan": "Tloris",
+    "chat": "Klepet",
+    "announcements": "Obvestila",
+    "reports": "Poročila",
+    "settings": "Nastavitve",
+    "ai": "AI pomočnik"
+  },
+  "login": {
+    "title": "Prijava",
+    "username": "Uporabniško ime",
+    "password": "Geslo",
+    "submit": "Prijava",
+    "error": "Prijava ni uspela"
+  },
+  "dashboard": {
+    "welcome": "Pozdravljen, {{user}}!"
+  }
+}

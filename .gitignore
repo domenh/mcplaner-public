@@ -1,0 +1,21 @@
+﻿# Node / build
+node_modules/
+dist/
+build/
+.next/
+.cache/
+.parcel-cache/
+.turbo/
+coverage/
+
+# Env & logs
+.env
+.env.*
+*.log
+*.tmp
+
+# OS/IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

@@ -1,0 +1,183 @@
+import TimeCell from "../components/TimeCell";
+import type { Employee, Shift, Station, WeekId } from "../types";
+import { getCell, loadWeek, saveWeek, subscribe } from "../store/schedule";
+import { addWeeks, getWeekId, weekDays, addMonths, getMonthId, monthDays } from "../utils/week";
+import { ChevronLeft, ChevronRight, Calendar, LayoutList } from "lucide-react";
+import { useEmployees } from "../lib/employees";
+
+function readLS<T=unknown>(keys: string[], fallback: any): T {
+  for (const k of keys) {
+    try { const raw = localStorage.getItem(k); if (raw) return JSON.parse(raw) as T; } catch {}
+  }
+  return fallback;
+}
+function seedEmployees(): Employee[] {
+  return [{ id:"1005", name:"Domen Hacin", group:"Crew", active:true }];
+}
+function seedStations(): Station[] {
+  return [
+    { id:"B", name:"Blagajna", active:true },
+    { id:"K", name:"Kuhinja",  active:true },
+    { id:"S", name:"Sala",     active:true },
+    { id:"V", name:"Vodja",    active:true },
+  ];
+}
+
+type ViewMode = "week" | "month";
+
+export default function Schedule() {
+  // rerender ob spremembah v store-u
+  const [tick, setTick] = useState(0);
+  useEffect(() => subscribe(() => setTick(t => t + 1)), []);
+
+  const [view, setView] = useState<ViewMode>("week");
+  const isMonth = view === "month";
+
+  const [anchor, setAnchor] = useState<Date>(()=>new Date());
+  const periodId: WeekId = useMemo(
+    () => (isMonth ? (getMonthId(anchor) as WeekId) : getWeekId(anchor)),
+    [anchor, isMonth]
+  );
+  const days = useMemo(
+    () => (isMonth ? monthDays(anchor) : weekDays(anchor)),
+    [anchor, isMonth]
+  );
+
+  // Employees & Stations iz settings (poskus veÄŤ kljuÄŤev; sicer seed)
+const { employees: liveEmployees = [] } = useEmployees();
+
+const allEmployees = (
+  Array.isArray(liveEmployees) && liveEmployees.length
+    ? liveEmployees
+    : readLS<Employee[]>(["mc_employees","employees","mcplaner_employees"], seedEmployees())
+).filter(e => e.active !== false);const { employees: liveEmployees = [] } = useEmployees();
+const stations = readLS<Station[]>(["mc_stations","stations","mcplaner_stations"], seedStations());
+    .filter(s=>s.active!==false);
+
+  const [stationFilter, setStationFilter] = useState<string[]>([]);
+  function toggleChip(id: string){
+    setStationFilter(prev => prev.includes(id) ? prev.filter(x=>x!==id) : [...prev, id]);
+  }
+  function onPrev(){
+    setAnchor(a => isMonth ? addMonths(a,-1) : addWeeks(a,-1));
+  }
+  function onNext(){
+    setAnchor(a => isMonth ? addMonths(a, 1) : addWeeks(a, 1));
+  }
+  function SaveToast(){
+    try { const wk = loadWeek(periodId); saveWeek(wk); alert("Urnik shranjen."); } catch {}
+  }
+  const groups = useMemo(()=>({
+    Crew: allEmployees.filter(e=>e.group==="Crew"),
+    Manager: allEmployees.filter(e=>e.group==="Manager"||e.group==="Assistant")
+  }),[allEmployees]);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        {/* Navigacija + naslov (ASCII) */}
+        <div className="flex items-center gap-2">
+          <button className="rounded-xl border px-3 py-2" onClick={onPrev} aria-label="Nazaj">
+            <ChevronLeft size={18} />
+          </button>
+
+          <div className="rounded-xl border px-3 py-2 bg-white select-none">
+            {isMonth ? `Urnik ${periodId}` : `Urnik ${periodId}`}
+          </div>
+
+          <button className="rounded-xl border px-3 py-2" onClick={onNext} aria-label="Naprej">
+            <ChevronRight size={18} />
+          </button>
+
+          {/* Filter postaj (kot prej) */}
+          <div className="ml-4 flex gap-2">
+            {stations.map(s=>(
+              <button key={s.id}
+                onClick={()=>toggleChip(s.id)}
+                className={`rounded-full px-3 h-9 text-sm border ${stationFilter.includes(s.id) ? "bg-[color:var(--amber)] text-white border-[color:var(--amber)]" : "bg-white border-slate-300"}`}>
+                {s.id} {s.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Preklop Week/Mesec z ikonami */}
+        <div className="flex items-center gap-2">
+          <button
+            className={`rounded-xl border px-3 py-2 flex items-center gap-2 ${!isMonth ? "bg-white" : ""}`}
+            onClick={()=>setView("week")}
+            title="Tedenski pogled"
+          >
+            <LayoutList size={16}/> Teden
+          </button>
+          <button
+            className={`rounded-xl border px-3 py-2 flex items-center gap-2 ${isMonth ? "bg-white" : ""}`}
+            onClick={()=>setView("month")}
+            title="MeseÄŤni plan"
+          >
+            <Calendar size={16}/> Mesec
+          </button>
+          <button className="btn btn-amber" onClick={SaveToast}>Shrani</button>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto rounded-2xl bg-white p-4 shadow">
+        <table className="w-full">
+          <thead>
+            <tr className="text-left text-slate-600">
+              <th className="w-48 py-2">{/* skupina */}Crew</th>
+              {days.map(d=>(
+                <th key={d.iso} className="py-2">
+                  <div className="text-sm font-medium">{d.labelShort}</div>
+                  <div className="text-xs text-slate-500">{String(d.dayNum).padStart(2,"0")}</div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="align-middle">
+            {groups.Crew.map(emp=>(
+              <tr key={emp.id} className="border-t">
+                <td className="py-3 pr-4">
+                  <div className="flex items-center gap-2">
+                    <div className="font-medium">{emp.name}</div>
+                    {stationFilter.length>0 && (
+                      <span className="inline-flex items-center justify-center w-5 h-5 text-xs rounded-full bg-slate-200">
+                        {stationFilter[0]}
+                      </span>
+                    )}
+                  </div>
+                </td>
+                {days.map((_, idx)=>{
+                  const v: Shift = getCell(periodId, emp.id, idx);
+                  return (
+                    <td key={emp.id+"-"+idx} className="py-2">
+                      <TimeCell weekId={periodId} employeeId={emp.id} dayIndex={idx} value={v} />
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+            {groups.Manager.length>0 && (
+              <>
+                <tr><td colSpan={days.length+1} className="pt-6 pb-2 text-slate-500">Managerji</td></tr>
+                {groups.Manager.map(emp=>(
+                  <tr key={emp.id} className="border-t">
+                    <td className="py-3 pr-4"><div className="font-medium">{emp.name}</div></td>
+                    {days.map((_, idx)=>{
+                      const v: Shift = getCell(periodId, emp.id, idx);
+                      return (
+                        <td key={emp.id+"-"+idx} className="py-2">
+                          <TimeCell weekId={periodId} employeeId={emp.id} dayIndex={idx} value={v} />
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,22 @@
+[
+    {
+        "path":  "src\\frontend\\src\\pages\\Login.tsx",
+        "sha256":  "E38382D4EDA238A68896561AA480A07DEC912963647DA5638385A7668A9EDA1B",
+        "baseline":  "C:\\McPlaner\\guard\\baseline\\src__frontend__src__pages__Login.tsx"
+    },
+    {
+        "path":  "src\\frontend\\src\\layout\\Sidebar.tsx",
+        "sha256":  "64DC1018E6350A7EE17B88F02176777FCDF1A3E2B8C1E44A8A369842A46B715D",
+        "baseline":  "C:\\McPlaner\\guard\\baseline\\src__frontend__src__layout__Sidebar.tsx"
+    },
+    {
+        "path":  "src\\frontend\\src\\index.css",
+        "sha256":  "71594594E893B88410C50D89C72591830CFF375313559CC79467C2B00787C572",
+        "baseline":  "C:\\McPlaner\\guard\\baseline\\src__frontend__src__index.css"
+    },
+    {
+        "path":  "src\\frontend\\src\\theme-fallback.css",
+        "sha256":  "B7FF0A4640E4850DC032FAD45BFB837A37F7F9E26C481C874FB0E034D15F0DB6",
+        "baseline":  "C:\\McPlaner\\guard\\baseline\\src__frontend__src__theme-fallback.css"
+    }
+]

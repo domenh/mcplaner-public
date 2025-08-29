@@ -1,0 +1,4 @@
+import React from "react";
+export default function App(){
+  return <div className="p-4 text-slate-600">McPlaner — App placeholder (popravi uvoz na pravo App datoteko)</div>;
+}
