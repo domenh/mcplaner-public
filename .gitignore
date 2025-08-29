@@ -19,3 +19,17 @@ coverage/
 Thumbs.db
 .idea/
 .vscode/
+# Large/archives (prepreči po nesreči)
+*.zip
+*.7z
+*.rar
+*.iso
+*.mp4
+*.mov
+*.avi
+# Internal backups/exports
+backups/
+logs/
+exports/
+_support/
+.tmp.driveupload/
